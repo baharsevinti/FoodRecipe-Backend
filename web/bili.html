@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ürün Seçimi</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        select {
+            width: 200px;
+            padding: 8px;
+            margin: 8px;
+        }
+
+        label {
+            margin: 8px 0;
+            color: #333;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 8px 0;
+        }
+
+        li {
+            margin-bottom: 4px;
+        }
+
+        button {
+            background-color: #007bff;
+            color: #fff;
+            padding: 10px;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        #result {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Ürün Seçimi</h1>
+    <!-- et -->
+    <select id="etler" multiple></select>
+    <div id=""></div>
+    <!-- sebzeler -->
+    <select id="sebzeler" multiple></select>
+    <div id=""></div>
+    <label for="selectedItems">Seçilen Ürünler:</label>
+    <ul id="selectedItems"></ul>
+    <button onclick="submitSelection()">Seçimleri Gönder</button>
+    <div id="result"></div>
+    <script>
+      const etler = document.getElementById("etler");
+      const sebzeler = document.getElementById("sebzeler");
+        fetch('http://localhost:3000/api/liste',{
+            headers: {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': 'http://localhost:3000',
+            'Access-Control-Allow-Credentials': 'true'
+        },
+        })
+            .then(response => response.json())
+            .then(data => {
+                // Gelen veriyi kullanarak listbox'u doldur
+                data['etler'].forEach(category => {
+                    const option = document.createElement("option");
+                    option.value = category['ad'];
+                    option.text = category['ad'];
+                    etler.appendChild(option);
+                });
+
+                data['sebzeler'].forEach(category => {
+                    const option = document.createElement("option");
+                    option.value = category['ad'];
+                    option.text = category['ad'];
+                    sebzeler.appendChild(option);
+                });
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+
+const selectedItems = [];
+function submitSelection() {
+    const selectedCategory = etler.value;
+    const selectedCategory2 = sebzeler.value;
+    selectedItems.push(selectedCategory);
+    selectedItems.push(selectedCategory2);
+
+    const resultDiv = document.getElementById("selectedItems");
+                resultDiv.innerHTML = `${selectedItems}`;
+
+
+    // Seçilen ürünleri gösteren liste elementini güncelle
+    const selectedItemsList = document.getElementById("selectedItems");
+    const listItem = document.createElement("liste");
+    listItem.textContent = selectedCategory;
+    selectedItemsList.appendChild(listItem);
+
+    // Seçilen ürünleri JSON olarak sunucuya gönder
+    const jsonData = JSON.stringify({ liste: selectedItems });
+    fetch('http://localhost:3000/api/yemektarifial', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': 'http://localhost:3000',
+            'Access-Control-Allow-Credentials': 'true'
+        },
+        body: jsonData
+    })
+    .then(response => response.json())
+    .then(data => {
+       const resultDiv = document.getElementById("result");
+                resultDiv.innerHTML = data['tarif'];
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+}
+</script>
+</body>
+</html>
