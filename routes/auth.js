@@ -8,14 +8,14 @@ const User = require('../models/user');
 router.post('/register', async (req, res) => {
   try {
     console.log(req.body);
-    const { username, password } = req.body;
+    const { username, password ,email} = req.body;
 
   
     // Şifreyi hashleme
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // Yeni kullanıcı oluştur
-    const user = new User({ username, password: hashedPassword });
+    const user = new User({ username, password: hashedPassword, email });
     await user.save();
 
     res.status(201).json({ message: 'User registered successfully' });
@@ -27,10 +27,10 @@ router.post('/register', async (req, res) => {
 // Kullanıcı Girişi
 router.post('/login', async (req, res) => {
   try {
-    const { username, password } = req.body;
+    const { username, password,email} = req.body;
 
     // Kullanıcıyı bulma
-    const user = await User.findOne({ username });
+    const user = await User.findOne({ email });
 
     if (!user) {
       return res.status(401).json({ message: 'Invalid credentials' });
