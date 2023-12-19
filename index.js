@@ -31,18 +31,17 @@ app.get('/api/liste', (req, res) => {
   } );
 });
 
+app.get('/api/hazirtarifal', (req, res) => {
 
-app.get('/api/hazirtarifal', async (req, res) => {
-  try {
-    const db = await mongoUtil.connectToServer();
-    const recipes = db.collection('recipe');
-    const recipe = await recipes.findOne({});
-    res.send(recipe);
-  } catch (error) {
-    console.error(error); // Hata mesajını konsola yazdır
-    res.status(500).json({ error: 'Sunucu hatası.' });
-  }
+  mongoUtil.connectToServer( async function( err, client ) {
+    if (err) console.log(err);
+    var db = mongoUtil.getDb();
+    const foods = db.collection('recipe');
+    const food = await foods.findOne({});
+      res.send(food);
+  } );
 });
+
 
 
 
