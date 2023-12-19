@@ -20,15 +20,15 @@ module.exports = {
      
       serverSelectionTimeoutMS: 30000});
 
-    try {
-      _db  = client.db('Foods');
-      return callback();
-    } catch (e) {
-      throw e;
-    } 
-  },
-
-  getDb: function() {
-    return _db;
-  }
-};
+      try {
+        _db  = client.db('Foods');
+        return callback();
+      } catch (e) {
+        throw e;
+      } 
+    },
+    getDb: function() {
+      return _db;
+    }
+  };
+ 

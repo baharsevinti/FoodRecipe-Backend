@@ -32,6 +32,20 @@ app.get('/api/liste', (req, res) => {
 });
 
 
+app.get('/api/hazirtarifal', async (req, res) => {
+  try {
+    const db = await mongoUtil.connectToServer();
+    const recipes = db.collection('recipe');
+    const recipe = await recipes.findOne({});
+    res.send(recipe);
+  } catch (error) {
+    console.error(error); // Hata mesajını konsola yazdır
+    res.status(500).json({ error: 'Sunucu hatası.' });
+  }
+});
+
+
+
 //basit bir gett isteği oluşturduk
 app.get('/api', (req, res) => {
     res.send('status: OK');
@@ -41,24 +55,24 @@ app.get('/api', (req, res) => {
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use('/api/auth', authRoutes);
+
 //post isteği tanımladık: kullanıcı buraya istek atarak tarif alabilsin diye
 app.post('/api/yemektarifial', async (req, res) => {
     const postData = req.body["liste"];
 
     console.log(postData);
 
-var prompt = `Write a recipe suggestion using the seven steps listed below for the meal ingredient list below. The seven steps are:
-Introduction make it even longer
-Ingredients (write clearly)
-Directions (write detailed)
-How to prepare (write detailed)
-Preparation time (write detailed)
-Nutrition Facts (per serving)(write detailed)
-storage conditions (write detailed)
-FAQs (research and write at least 5 questions and answers)
-Conclusion (write 200 words long)
-Sentence length should be short with enough transition words. Write it in Turkish* ${postData}.
-Include a title as a H1, an intro, then sections as H2s. break up the article into sections and format the headers as h2 headers and the title as h1 in markdown formatting.`;
+
+// prompt değiştir daha basit hali kısalt madde madde verdir tarifi
+var prompt = `Aşağıdaki yemek malzemesi listesi için aşağıda listelenen yedi adımı kullanarak bir tarif önerisi hazırlayın. Yedi adım şunlardır:
+Yemek tarifi (ayrıntılı yazın)
+Nasıl hazırlanır (ayrıntılı yazın)
+Hazırlık süresi (ayrıntılı yazın)
+Sonuç (200 kelime uzunluğunda yazın)
+Cümle uzunluğu yeterli sayıda geçiş sözcüğü içerecek şekilde kısa olmalıdır. Türkçe yazın* ${postData}.`
+
+
+
     
 console.log(prompt);
     //chat gpt baglantısı ve cevabı
@@ -72,9 +86,9 @@ console.log(prompt);
     res.send({
         "tarif": output_text,   
     });
-
-  
+    
 });
+
 
 app.listen(process.env.PORT, () => {
  console.log("Server Listening on PORT:", process.env.PORT);
