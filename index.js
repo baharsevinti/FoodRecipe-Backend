@@ -42,6 +42,37 @@ app.get('/api/hazirtarifal', (req, res) => {
   });
 });
 
+// Admin panelinden Tarif silme
+
+app.delete('/api/silTarif/:id', (req, res) => {
+  const tarifId = req.params.id;
+
+  // MongoDB bağlantısını gerçekleştir
+  mongoUtil.connectToServer(async function (err, client) {
+    if (err) {
+      console.log(err);
+      res.status(500).send("Internal Server Error");
+      return;
+    }
+
+    var db = mongoUtil.getDb();
+    const foods = db.collection('recipe');
+
+    try {
+      const result = await foods.deleteOne({ "tarifler.id": parseInt(tarifId) });
+
+      if (result.deletedCount === 1) {
+        res.status(200).send("Tarif başarıyla silindi.");
+      } else {
+        res.status(404).send("Belirtilen ID ile eşleşen bir tarif bulunamadı.");
+      }
+    } catch (error) {
+      console.log(error);
+      res.status(500).send("Internal Server Error");
+    }
+  });
+});
+
 
 
 
