@@ -5,7 +5,7 @@ var _db;
 
 
 module.exports = {
-  connectToServer: async function( callback ) {
+  connectToServer: async function(dbName='Foods', callback) {
 
       mongoose.connect(process.env.DB_URL, { 
         useNewUrlParser: true, 
@@ -21,7 +21,7 @@ module.exports = {
       serverSelectionTimeoutMS: 30000});
 
       try {
-        _db  = client.db('Foods');
+        _db  = client.db(dbName);
         return callback();
       } catch (e) {
         throw e;
@@ -31,4 +31,6 @@ module.exports = {
       return _db;
     }
   };
+ 
+
  

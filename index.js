@@ -21,8 +21,7 @@ app.use(cors(corsOptions));
 
 
 app.get('/api/liste', (req, res) => {
-
-  mongoUtil.connectToServer(async function (err, client) {
+  mongoUtil.connectToServer('Foods',async function (err, client) {
     if (err) console.log(err);
     var db = mongoUtil.getDb();
     const foods = db.collection('food');
@@ -31,9 +30,10 @@ app.get('/api/liste', (req, res) => {
   });
 });
 
+
 app.get('/api/hazirtarifal', (req, res) => {
 
-  mongoUtil.connectToServer(async function (err, client) {
+  mongoUtil.connectToServer('Foods',async function (err, client) {
     if (err) console.log(err);
     var db = mongoUtil.getDb();
     const foods = db.collection('recipe');
@@ -41,26 +41,42 @@ app.get('/api/hazirtarifal', (req, res) => {
     res.send(food);
   });
 });
+ //Kullanıcı listeleme
+app.get('/api/user/list', (req, res) => {
+
+  mongoUtil.connectToServer('test',async function (err, client) {
+    if (err) console.log(err);
+    var db = mongoUtil.getDb();
+    const users = db.collection('users');
+    const userList = await users.find({}).toArray();
+    res.send(userList);
+  });
+});
+
 
 
 // Admin panelinden Tarif silme
 
 app.delete('/api/silTarif/:id', async (req, res) => {
   const tarifId = req.params.id;
+  const tarifId = parseInt(req.params.id); // id değerini integer'a çevir
 
-  // MongoDB bağlantısını gerçekleştir
   try {
     const db = mongoUtil.getDb();
     const recipes = db.collection('recipe');
 
-    // Belirtilen ID'ye sahip tarifi bul ve sil
-    const result = await recipes.deleteOne({ _id: tarifId });
+    // Belirtilen ID'ye sahip tarifi sil
+    const result = await recipes.updateOne(
+      {}, 
+      { $pull: { tarifler: { id: tarifId } } }
+    );
 
-    if (result.deletedCount === 1) {
-      res.status(200).send("Tarif başarıyla silindi.");
-    } else {
-      res.status(404).send("Belirtilen ID ile eşleşen bir tarif bulunamadı.");
+    // Silme işlemi başarılı mı kontrol et
+    if (result.modifiedCount === 0) {
+      return res.status(404).send("Tarif bulunamadı veya zaten silinmiş.");
     }
+
+    res.status(200).send("Tarif başarıyla silindi.");
   } catch (error) {
     console.log(error);
     res.status(500).send("Internal Server Error");
@@ -87,7 +103,7 @@ app.post('/api/yemektarifial', async (req, res) => {
 
 
   // prompt değiştir daha basit hali kısalt madde madde verdir tarifi
-  var prompt = `Aşağıdaki yemek malzemesi listesi için aşağıda listelenen adımları kullanarak bir tarif önerisi hazırlayın. Adımlar şunlardır:
+var prompt = `Aşağıdaki yemek malzemesi listesi için aşağıda listelenen adımları kullanarak bir tarif önerisi hazırlayın. Adımlar şunlardır:
 Tarif, Nasıl Hazırlanır: ifadesi ile başlamaldır
 Yemek tarifi (ayrıntılı yazın)
 Nasıl hazırlanır (ayrıntılı yazın)
