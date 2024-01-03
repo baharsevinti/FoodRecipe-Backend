@@ -58,7 +58,6 @@ app.get('/api/user/list', (req, res) => {
 // Admin panelinden Tarif silme
 
 app.delete('/api/silTarif/:id', async (req, res) => {
-  const tarifId = req.params.id;
   const tarifId = parseInt(req.params.id); // id değerini integer'a çevir
 
   try {
