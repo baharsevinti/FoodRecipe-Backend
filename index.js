@@ -8,6 +8,7 @@ var mongoUtil = require("./mongoUtil");
 const authRoutes = require('./routes/auth');
 const { MongoClient } = require('mongodb');
 
+
 //open ai auth
 const openai = new OpenAIApi({ apiKey: process.env.OPENAI_SECRET_KEY });
 const cors = require("cors");
@@ -41,9 +42,10 @@ app.get('/api/hazirtarifal', (req, res) => {
     res.send(food);
   });
 });
+
+
  //Kullanıcı listeleme
 app.get('/api/user/list', (req, res) => {
-
   mongoUtil.connectToServer('test',async function (err, client) {
     if (err) console.log(err);
     var db = mongoUtil.getDb();
@@ -53,13 +55,10 @@ app.get('/api/user/list', (req, res) => {
   });
 });
 
-
-
 // Admin panelinden Tarif silme
 
 app.delete('/api/silTarif/:id', async (req, res) => {
   const tarifId = parseInt(req.params.id); // id değerini integer'a çevir
-
   try {
     const db = mongoUtil.getDb();
     const recipes = db.collection('recipe');

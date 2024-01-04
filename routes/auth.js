@@ -4,21 +4,36 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 
-// Kullanıcı Kaydıs
+
+// Kullanıcı Kaydı
 router.post('/register', async (req, res) => {
   try {
     console.log(req.body);
-    const { username, password ,email} = req.body;
+    const { username, password ,email, } = req.body;
 
   
     // Şifreyi hashleme
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // Yeni kullanıcı oluştur
-    const user = new User({ username, password: hashedPassword, email });
+    const user = new User({ username, password: hashedPassword, email, role: 'uye' });
     await user.save();
 
     res.status(201).json({ message: 'Kullanıcı başarıyla kaydoldu' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+router.post('/createadmin', async (req, res) => {
+  try {
+    const { username, password, email } = req.body;
+
+    // Admin kullanıcısı oluştur
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const adminUser = new User({ username, password: hashedPassword, email, role: 'admin' });
+    await adminUser.save();
+
+    res.status(201).json({ message: 'Admin kullanıcısı başarıyla oluşturuldu' });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -51,5 +66,8 @@ router.post('/login', async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+
+
+
 
 module.exports = router;
